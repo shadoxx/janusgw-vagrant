@@ -1,0 +1,62 @@
+#!/bin/bash
+
+compile_websockets_lib() {
+	if [ ! -d "/vagrant/cache/libwebsockets" ]; then
+		echo -e "[*] Cloning the libwebsockets repository"
+		git clone --depth 1 https://libwebsockets.org/repo/libwebsockets /vagrant/cache/libwebsockets
+	fi
+
+	cd /vagrant/cache/libwebsockets
+	
+	echo -e "[*] Checkout the latest stable version"
+	git checkout v3.0-stable
+
+	mkdir build
+	cd build
+
+	echo -e "[*] Building..."
+	cmake -DLWS_MAX_SMP=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic"
+	make -j$(nproc)
+
+	echo -e "[*] Installing to /usr"
+	make install
+}
+
+compile_janus_server() {
+	if [ ! -d "/vagrant/cache/janus-gateway" ]; then
+		echo -e "[*] Cloning the janus-gateway repository"
+		git clone --depth 1 https://github.com/meetecho/janus-gateway.git /vagrant/cache/janus-gateway
+	fi
+
+	cd /vagrant/cache/janus-gateway
+
+	sh autogen.sh
+	./configure --prefix=/opt/janus --disable-data-channels --disable-rabbitmq --disable-mqtt
+
+	echo -e "[*] Building..."
+	make -j$(nproc)
+
+	echo -e "[*] Installing to /opt/janus"
+	make install
+
+	echo -e "[*] Generating fresh configuration files"
+	make configs
+}
+
+enable_apt_network_cache() {
+  # Force VM to use the local apt caching proxy to speed up updates and downloads
+  echo "Acquire::http::Proxy \"http://192.168.42.221:3142\";" > /etc/apt/apt.conf.d/proxy
+}
+
+delete_local_git_cache() {
+  if [ -d "/vagrant/cache" ]; then
+    echo -e "[*] Deleting the local Git cache"
+    rm -vrf /vagrant/cache/*
+  fi
+}
+echo -e "[==============================================================================]"
+echo -e " janus-server autocompiler                                                      "
+echo -e "[==============================================================================]"
+
+compile_websockets_lib
+compile_janus_server
