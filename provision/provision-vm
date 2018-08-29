@@ -36,13 +36,16 @@ compile_janus_server() {
 
 	echo -e "[*] Generating fresh configuration files"
 	make configs
+
+  install -m 640 /vagrant/provision/conf/janus/janus.cfg /etc/janus
+  install -m 640 /vagrant/provision/conf/janas/janus.transport.http.cfg /etc/janus
 }
 
 install_janus_service() {
-	echo -e "[*] Installing janus-gateway systemd script and enabling by default"
-	install -m 644 /vagrant/provision/conf/systemd/janus-gateway.service /lib/systemd/system
+	echo -e "[*] Installing janus systemd script and enabling by default"
+	install -m 644 /vagrant/provision/conf/systemd/janus.service /lib/systemd/system
 	systemctl daemon-reload
-	systemctl enable janus-gateway
+	systemctl enable janus
 }
 
 enable_apt_network_cache() {
