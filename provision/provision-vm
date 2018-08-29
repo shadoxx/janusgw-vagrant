@@ -52,7 +52,7 @@ generate_ssl_certificate() {
   local CERT_PATH=/vagrant/cache/ssl/certificate.pem
   local KEY_PATH=/vagrant/cache/ssl/privatekey.pem
    
-  if[ ! -d "/vagrant/cache/ssl" ]; then
+  if [ ! -d "/vagrant/cache/ssl" ]; then
     mkdir -p /vagrant/cache/ssl
     openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout $KEY_PATH -out $CERT_PATH
   fi
