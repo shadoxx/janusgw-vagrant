@@ -37,15 +37,19 @@ compile_janus_server() {
 	echo -e "[*] Generating fresh configuration files"
 	make configs
 
-  install -m 640 /vagrant/provision/conf/janus/janus.cfg /etc/janus
-  install -m 640 /vagrant/provision/conf/janus/janus.transport.http.cfg /etc/janus
+  echo -e "[*] Installing custom configuration files to /etc/janus"
+  for file in $(ls -1 "/vagrant/provision/conf/janus"); do
+    install -v -m 640 /vagrant/provision/conf/janus/$file /etc/janus
+  done
 }
 
 install_janus_service() {
-	echo -e "[*] Installing janus systemd script and enabling by default"
+	echo -e "[*] Installing, enabling, and starting the janus service via systemd"
 	install -m 644 /vagrant/provision/conf/systemd/janus.service /lib/systemd/system
 	systemctl daemon-reload
 	systemctl enable janus
+
+  systemctl start janus
 }
 
 generate_ssl_certificate() {
@@ -56,6 +60,16 @@ generate_ssl_certificate() {
     mkdir -p /vagrant/cache/ssl
     openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout $KEY_PATH -out $CERT_PATH
   fi
+}
+
+apply_patch_a() {
+  echo -e "[*] PATCH A: creating a symlink from /etc/janus to /usr/local/etc/janus"
+  ln -vs /etc/janus /usr/local/etc/janus
+}
+
+apply_patch_b() {
+  echo -e "[*] PATCH B: copying the contents of /share/janus/demos to Nginx webroot"
+  cp -vr /share/janus/demos/* /var/www/html
 }
 
 enable_apt_network_cache() {
@@ -75,5 +89,8 @@ echo -e "[======================================================================
 
 compile_websockets_lib
 compile_janus_server
-install_janus_service
 generate_ssl_certificate
+install_janus_service
+
+apply_patch_a
+apply_patch_b
