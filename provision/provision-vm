@@ -2,24 +2,24 @@
 
 compile_websockets_lib() {
 	if [ ! -d "/home/vagrant/libwebsockets" ]; then
-		echo -e "[*] Cloning the libwebsockets repository"
+		echo -e "\n[*] Cloning the libwebsockets repository"
 		git clone --depth 1 -b v3.0.0 https://github.com/warmcat/libwebsockets.git /home/vagrant/libwebsockets
     mkdir /home/vagrant/libwebsockets/build
 	fi
 
 	cd /home/vagrant/libwebsockets/build
 	
-	echo -e "[*] Building libwebsockets..."
+	echo -e "\n[*] Building libwebsockets..."
 	cmake -DLWS_WITH_HTTP2=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic" ..
 	make
 
-	echo -e "[*] Installing to /usr"
+	echo -e "\n[*] Installing libwebsockets shared lib to /usr"
 	make install
 }
 
 compile_janus_server() {
 	if [ ! -d "/vagrant/cache/janus-gateway" ]; then
-		echo -e "[*] Cloning the janus-gateway repository"
+		echo -e "\n[*] Cloning the janus-gateway repository"
 		git clone https://github.com/meetecho/janus-gateway.git /vagrant/cache/janus-gateway
 	fi
 
@@ -28,23 +28,23 @@ compile_janus_server() {
 	sh autogen.sh
 	./configure --exec-prefix=/usr --prefix=/ --disable-data-channels --disable-rabbitmq --disable-mqtt
 
-	echo -e "[*] Building..."
+	echo -e "\n[*] Building janus-gateway executeable and plugins..."
 	make -j$(nproc)
 
-	echo -e "[*] Installing to local system"
+	echo -e "\n[*] Installing to local system"
 	make install
 
-	echo -e "[*] Generating fresh configuration files"
+	echo -e "\n[*] Generating fresh configuration files"
 	make configs
 
-  echo -e "[*] Installing custom configuration files to /etc/janus"
+  echo -e "\n[*] Installing custom configuration files to /etc/janus"
   for file in $(ls -1 "/vagrant/provision/conf/janus"); do
     install -v -m 640 /vagrant/provision/conf/janus/$file /etc/janus
   done
 }
 
 install_janus_service() {
-	echo -e "[*] Installing, enabling, and starting the janus service via systemd"
+	echo -e "\n[*] Installing, enabling, and starting the janus service via systemd"
 	install -m 644 /vagrant/provision/conf/systemd/janus.service /lib/systemd/system
 	systemctl daemon-reload
 	systemctl enable janus
@@ -55,7 +55,7 @@ generate_ssl_certificate() {
   local KEY_PATH=/vagrant/cache/ssl/privatekey.pem
    
   if [ ! -d "/vagrant/cache/ssl" ]; then
-    echo -e "[*] Running first time generation of X509 certificate for localhost"
+    echo -e "\n[*] Running first time generation of X509 certificate for localhost"
     mkdir -p /vagrant/cache/ssl
     openssl req -x509 -out $CERT_PATH -keyout $KEY_PATH \
       -newkey rsa:2048 -nodes -sha256 \
@@ -65,13 +65,13 @@ generate_ssl_certificate() {
 }
 
 apply_patch_a() {
-  echo -e "[*] PATCH A: creating a symlink from /etc/janus to /usr/local/etc/janus"
+  echo -e "\n[*] PATCH A: creating a symlink from /etc/janus to /usr/local/etc/janus"
   ln -vs /etc/janus /usr/local/etc/janus
   systemctl start janus
 }
 
 apply_patch_b() {
-  echo -e "[*] PATCH B: copying the contents of /share/janus/demos to Nginx webroot"
+  echo -e "\n[*] PATCH B: copying the contents of /share/janus/demos to Nginx webroot"
   cp -vr /share/janus/demos/* /var/www/html
 }
 
@@ -82,11 +82,12 @@ enable_apt_network_cache() {
 
 delete_local_git_cache() {
   if [ -d "/vagrant/cache" ]; then
-    echo -e "[*] Deleting the local Git cache"
+    echo -e "\n[*] Deleting the local Git cache"
     rm -vrf "/vagrant/cache/*"
   fi
 }
 
+echo -e "\n"
 echo -e "=============================================================================="
 echo -e " janus-server autocompiler                                                    "
 echo -e "=============================================================================="
