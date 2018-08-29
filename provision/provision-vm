@@ -38,7 +38,7 @@ compile_janus_server() {
 	make configs
 
   install -m 640 /vagrant/provision/conf/janus/janus.cfg /etc/janus
-  install -m 640 /vagrant/provision/conf/janas/janus.transport.http.cfg /etc/janus
+  install -m 640 /vagrant/provision/conf/janus/janus.transport.http.cfg /etc/janus
 }
 
 install_janus_service() {
@@ -46,6 +46,16 @@ install_janus_service() {
 	install -m 644 /vagrant/provision/conf/systemd/janus.service /lib/systemd/system
 	systemctl daemon-reload
 	systemctl enable janus
+}
+
+generate_ssl_certificate() {
+  local CERT_PATH=/vagrant/cache/ssl/certificate.pem
+  local KEY_PATH=/vagrant/cache/ssl/privatekey.pem
+   
+  if[ ! -d "/vagrant/cache/ssl" ]; then
+    mkdir -p /vagrant/cache/ssl
+    openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout $KEY_PATH -out $CERT_PATH
+  fi
 }
 
 enable_apt_network_cache() {
@@ -66,3 +76,4 @@ echo -e "[======================================================================
 compile_websockets_lib
 compile_janus_server
 install_janus_service
+generate_ssl_certificate

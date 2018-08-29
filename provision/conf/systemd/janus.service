@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/usr/bin/janus -o
+ExecStart=/usr/bin/janus -C /etc/janus/janus.cfg -o
 PIDFile=/var/run/janus.pid
 Restart=on-abnormal
 LimitNOFILE=65536
