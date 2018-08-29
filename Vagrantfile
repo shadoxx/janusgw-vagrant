@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     # Force VM to use the local apt network caching proxy to speed up updates and downloads
-    echo 'Acquire::http::Proxy "http://192.168.42.221:3142";' > /etc/apt/apt.conf.d/proxy
+    #echo 'Acquire::http::Proxy "http://192.168.42.221:3142";' > /etc/apt/apt.conf.d/proxy
 
     apt update; apt dist-upgrade -y
 
