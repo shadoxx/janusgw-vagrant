@@ -1,22 +1,17 @@
 #!/bin/bash
 
 compile_websockets_lib() {
-	if [ ! -d "/vagrant/cache/libwebsockets" ]; then
+	if [ ! -d "/home/vagrantlibwebsockets" ]; then
 		echo -e "[*] Cloning the libwebsockets repository"
-		git clone --depth 1 https://libwebsockets.org/repo/libwebsockets /vagrant/cache/libwebsockets
+		git clone --depth 1 -b v3.0.0 https://github.com/warmcat/libwebsockets.git /home/vagrant/libwebsockets
+    mkdir /home/vagrant/libwebsockets/build
 	fi
 
-	cd /vagrant/cache/libwebsockets
+	cd /home/vagrant/libwebsockets/build
 	
-	echo -e "[*] Checkout the latest stable version"
-	git checkout v3.0-stable
-
-	mkdir build
-	cd build
-
-	echo -e "[*] Building..."
-	cmake -DLWS_MAX_SMP=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic"
-	make -j$(nproc)
+	echo -e "[*] Building libwebsockets..."
+	cmake -DLWS_WITH_HTTP2=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic" ..
+	make
 
 	echo -e "[*] Installing to /usr"
 	make install
@@ -25,22 +20,29 @@ compile_websockets_lib() {
 compile_janus_server() {
 	if [ ! -d "/vagrant/cache/janus-gateway" ]; then
 		echo -e "[*] Cloning the janus-gateway repository"
-		git clone --depth 1 https://github.com/meetecho/janus-gateway.git /vagrant/cache/janus-gateway
+		git clone https://github.com/meetecho/janus-gateway.git /vagrant/cache/janus-gateway
 	fi
 
 	cd /vagrant/cache/janus-gateway
 
 	sh autogen.sh
-	./configure --prefix=/opt/janus --disable-data-channels --disable-rabbitmq --disable-mqtt
+	./configure --disable-data-channels --disable-rabbitmq --disable-mqtt
 
 	echo -e "[*] Building..."
 	make -j$(nproc)
 
-	echo -e "[*] Installing to /opt/janus"
+	echo -e "[*] Installing to local system"
 	make install
 
 	echo -e "[*] Generating fresh configuration files"
 	make configs
+}
+
+install_janus_service() {
+	echo -e "[*] Installing janus-gateway systemd script and enabling by default"
+	install -m 644 /vagrant/provision/conf/systemd/janus-gateway.service /lib/systemd/system
+	systemctl daemon-reload
+	systemctl enable janus-gateway
 }
 
 enable_apt_network_cache() {
@@ -51,7 +53,7 @@ enable_apt_network_cache() {
 delete_local_git_cache() {
   if [ -d "/vagrant/cache" ]; then
     echo -e "[*] Deleting the local Git cache"
-    rm -vrf /vagrant/cache/*
+    rm -vrf "/vagrant/cache/*"
   fi
 }
 echo -e "[==============================================================================]"
@@ -60,3 +62,4 @@ echo -e "[======================================================================
 
 compile_websockets_lib
 compile_janus_server
+install_janus_service

@@ -16,3 +16,4 @@ pkg-config
 gengetopt
 libtool
 automake
+cmake
