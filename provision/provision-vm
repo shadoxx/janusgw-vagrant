@@ -75,18 +75,6 @@ apply_patch_b() {
   cp -vr /share/janus/demos/* /var/www/html
 }
 
-enable_apt_network_cache() {
-  # Force VM to use the local apt caching proxy to speed up updates and downloads
-  echo "Acquire::http::Proxy \"http://192.168.42.221:3142\";" > /etc/apt/apt.conf.d/proxy
-}
-
-delete_local_git_cache() {
-  if [ -d "/vagrant/cache" ]; then
-    echo -e "\n[*] Deleting the local Git cache"
-    rm -vrf "/vagrant/cache/*"
-  fi
-}
-
 echo -e "\n"
 echo -e "=============================================================================="
 echo -e " janus-server autocompiler                                                    "
