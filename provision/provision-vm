@@ -55,8 +55,12 @@ generate_ssl_certificate() {
   local KEY_PATH=/vagrant/cache/ssl/privatekey.pem
    
   if [ ! -d "/vagrant/cache/ssl" ]; then
+    echo -e "[*] Running first time generation of X509 certificate for localhost"
     mkdir -p /vagrant/cache/ssl
-    openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout $KEY_PATH -out $CERT_PATH
+    openssl req -x509 -out $CERT_PATH -keyout $KEY_PATH \
+      -newkey rsa:2048 -nodes -sha256 \
+      -subj '/CN=localhost' -extensions EXT -config <( \
+      printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
   fi
 }
 
@@ -82,9 +86,10 @@ delete_local_git_cache() {
     rm -vrf "/vagrant/cache/*"
   fi
 }
-echo -e "[==============================================================================]"
-echo -e " janus-server autocompiler                                                      "
-echo -e "[==============================================================================]"
+
+echo -e "=============================================================================="
+echo -e " janus-server autocompiler                                                    "
+echo -e "=============================================================================="
 
 compile_websockets_lib
 compile_janus_server
