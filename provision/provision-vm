@@ -1,7 +1,7 @@
 #!/bin/bash
 
 compile_websockets_lib() {
-	if [ ! -d "/home/vagrantlibwebsockets" ]; then
+	if [ ! -d "/home/vagrant/libwebsockets" ]; then
 		echo -e "[*] Cloning the libwebsockets repository"
 		git clone --depth 1 -b v3.0.0 https://github.com/warmcat/libwebsockets.git /home/vagrant/libwebsockets
     mkdir /home/vagrant/libwebsockets/build
@@ -26,7 +26,7 @@ compile_janus_server() {
 	cd /vagrant/cache/janus-gateway
 
 	sh autogen.sh
-	./configure --disable-data-channels --disable-rabbitmq --disable-mqtt
+	./configure --exec-prefix=/usr --prefix=/ --disable-data-channels --disable-rabbitmq --disable-mqtt
 
 	echo -e "[*] Building..."
 	make -j$(nproc)

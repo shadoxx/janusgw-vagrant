@@ -3,8 +3,9 @@ Description=Janus WebRTC gateway
 After=network.target
 
 [Service]
-Type=simple
-ExecStart=/bin/janus -o
+Type=forking
+ExecStart=/usr/bin/janus -o
+PIDFile=/var/run/janus-gateway.pid
 Restart=on-abnormal
 LimitNOFILE=65536
 
