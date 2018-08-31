@@ -1,66 +1,66 @@
 #!/bin/bash
 
 compile_websockets_lib() {
-	if [ ! -d "/vagrant/cache/libwebsockets" ]; then
-		echo -e "\n[*] Cloning the libwebsockets repository"
-		git clone -q --depth 1 -b v3.0.0 https://github.com/warmcat/libwebsockets.git /vagrant/cache/libwebsockets
-	fi
+  if [ ! -d "/vagrant/cache/libwebsockets" ]; then
+    echo -e "\n[*] Cloning the libwebsockets repository"
+    git clone -q --depth 1 -b v3.0.0 https://github.com/warmcat/libwebsockets.git /vagrant/cache/libwebsockets
+  fi
 
-	# Clone from cache filesystem to vm filesystem to workaround problems with
-	# Windows and symlinks within VMs.
+  # Clone from cache filesystem to vm filesystem to workaround problems with
+  # Windows and symlinks within VMs.
   git clone /vagrant/cache/libwebsockets/ /home/vagrant/libwebsockets
-	mkdir /home/vagrant/libwebsockets/build
+  mkdir /home/vagrant/libwebsockets/build
 
-	cd /home/vagrant/libwebsockets/build
+  cd /home/vagrant/libwebsockets/build
 
-	echo -e "\n[*] Building libwebsockets..."
-	cmake -DLWS_WITH_HTTP2=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic" ..
-	make
+  echo -e "\n[*] Building libwebsockets..."
+  cmake -DLWS_WITH_HTTP2=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic" ..
+  make
 
-	echo -e "\n[*] Installing libwebsockets shared lib to /usr"
-	make install
+  echo -e "\n[*] Installing libwebsockets shared lib to /usr"
+  make install
 }
 
 compile_usrsctp_lib() {
-	if [ ! -d "/vagrant/cache/usrsctp" ]; then
-		echo -e "\n[*] Cloning the usrsctp repository for Data Channel support"
-		git clone -q https://github.com/sctplab/usrsctp /vagrant/cache/usrsctp
-	fi
+  if [ ! -d "/vagrant/cache/usrsctp" ]; then
+    echo -e "\n[*] Cloning the usrsctp repository for Data Channel support"
+    git clone -q https://github.com/sctplab/usrsctp /vagrant/cache/usrsctp
+  fi
 
   git clone /vagrant/cache/usrsctp/ /home/vagrant/usrsctp
-	cd /home/vagrant/usrsctp
+  cd /home/vagrant/usrsctp
 
-	echo -e "\n[*] Bootstrapping and configuring usrsctp"
-	./bootstrap
-	./configure --prefix=/usr
+  echo -e "\n[*] Bootstrapping and configuring usrsctp"
+  ./bootstrap
+  ./configure --prefix=/usr
 
-	echo -e "\n[*] Building usrsctp..."
-	make
+  echo -e "\n[*] Building usrsctp..."
+  make
 
-	echo -e "\n[*] Installing usrsctp shared lib to /usr"
-	make install
+  echo -e "\n[*] Installing usrsctp shared lib to /usr"
+  make install
 }
 
 
 compile_janus_server() {
-	if [ ! -d "/vagrant/cache/janus-gateway" ]; then
-		echo -e "\n[*] Cloning the janus-gateway repository"
-		git clone -q https://github.com/meetecho/janus-gateway.git /vagrant/cache/janus-gateway
-	fi
+  if [ ! -d "/vagrant/cache/janus-gateway" ]; then
+    echo -e "\n[*] Cloning the janus-gateway repository"
+    git clone -q https://github.com/meetecho/janus-gateway.git /vagrant/cache/janus-gateway
+  fi
 
-	cd /vagrant/cache/janus-gateway
+  cd /vagrant/cache/janus-gateway
 
-	sh autogen.sh
-	./configure --datarootdir=/usr --exec-prefix=/usr --prefix=/ --enable-post-processing --enable-all-js-modules --disable-rabbitmq --disable-mqtt
+  sh autogen.sh
+  ./configure --datarootdir=/usr --exec-prefix=/usr --prefix=/ --enable-post-processing --enable-all-js-modules --disable-rabbitmq --disable-mqtt
 
-	echo -e "\n[*] Building janus-gateway executeable and plugins..."
-	make -j$(nproc)
+  echo -e "\n[*] Building janus-gateway executeable and plugins..."
+  make -j$(nproc)
 
-	echo -e "\n[*] Installing to local system"
-	make install
+  echo -e "\n[*] Installing to local system"
+  make install
 
-	echo -e "\n[*] Generating fresh configuration files"
-	make configs
+  echo -e "\n[*] Generating fresh configuration files"
+  make configs
 
   echo -e "\n[*] Installing custom configuration files to /etc/janus"
   for file in $(ls -1 "/vagrant/provision/conf/janus"); do
@@ -69,10 +69,10 @@ compile_janus_server() {
 }
 
 install_janus_service() {
-	echo -e "\n[*] Installing, enabling, and starting the janus service via systemd"
-	install -m 644 /vagrant/provision/conf/systemd/janus.service /lib/systemd/system
-	systemctl daemon-reload
-	systemctl enable janus
+  echo -e "\n[*] Installing, enabling, and starting the janus service via systemd"
+  install -m 644 /vagrant/provision/conf/systemd/janus.service /lib/systemd/system
+  systemctl daemon-reload
+  systemctl enable janus
 }
 
 generate_ssl_certificate() {
