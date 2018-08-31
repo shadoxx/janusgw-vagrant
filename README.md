@@ -30,12 +30,12 @@ repository and run `vagrant up` in the cloned directory.
    VM could take as long as 15 minutes. Get up. Stretch your legs. How long have
    you been sitting at your computer?
 
-6. One completed, a basic web management interface with API demos will be available
+6. Once completed, a basic web management interface with API demos will be available
    at http://localhost:8080/index.html. The password for the Admin API is: `janusoverlord`
 
 7. To SSH into the newly created VM, just type `vagrant ssh`.
 
-8. The start from scratch, run `vagrant destroy -f; vagrant up` in the cloned
+8. To start from scratch, run `vagrant destroy -f; vagrant up` in the cloned
    repository. YOUR VM WILL BE DESTROYED AND RECREATED!
 
 ## Appendix
