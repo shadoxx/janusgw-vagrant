@@ -1,14 +1,18 @@
 #!/bin/bash
 
 compile_websockets_lib() {
-	if [ ! -d "/home/vagrant/libwebsockets" ]; then
+	if [ ! -d "/vagrant/cache/libwebsockets" ]; then
 		echo -e "\n[*] Cloning the libwebsockets repository"
-		git clone --depth 1 -b v3.0.0 https://github.com/warmcat/libwebsockets.git /home/vagrant/libwebsockets
-    mkdir /home/vagrant/libwebsockets/build
+		git clone -q --depth 1 -b v3.0.0 https://github.com/warmcat/libwebsockets.git /vagrant/cache/libwebsockets
 	fi
 
+	# Clone from cache filesystem to vm filesystem to workaround problems with
+	# Windows and symlinks within VMs.
+  git clone /vagrant/cache/libwebsockets/ /home/vagrant/libwebsockets
+	mkdir /home/vagrant/libwebsockets/build
+
 	cd /home/vagrant/libwebsockets/build
-	
+
 	echo -e "\n[*] Building libwebsockets..."
 	cmake -DLWS_WITH_HTTP2=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic" ..
 	make
@@ -17,16 +21,37 @@ compile_websockets_lib() {
 	make install
 }
 
+compile_usrsctp_lib() {
+	if [ ! -d "/vagrant/cache/usrsctp" ]; then
+		echo -e "\n[*] Cloning the usrsctp repository for Data Channel support"
+		git clone -q https://github.com/sctplab/usrsctp /vagrant/cache/usrsctp
+	fi
+
+  git clone /vagrant/cache/usrsctp/ /home/vagrant/usrsctp
+	cd /home/vagrant/usrsctp
+
+	echo -e "\n[*] Bootstrapping and configuring usrsctp"
+	./bootstrap
+	./configure --prefix=/usr
+
+	echo -e "\n[*] Building usrsctp..."
+	make
+
+	echo -e "\n[*] Installing usrsctp shared lib to /usr"
+	make install
+}
+
+
 compile_janus_server() {
 	if [ ! -d "/vagrant/cache/janus-gateway" ]; then
 		echo -e "\n[*] Cloning the janus-gateway repository"
-		git clone https://github.com/meetecho/janus-gateway.git /vagrant/cache/janus-gateway
+		git clone -q https://github.com/meetecho/janus-gateway.git /vagrant/cache/janus-gateway
 	fi
 
 	cd /vagrant/cache/janus-gateway
 
 	sh autogen.sh
-	./configure --exec-prefix=/usr --prefix=/ --enable-docs --disable-data-channels --disable-rabbitmq --disable-mqtt
+	./configure --datarootdir=/usr --exec-prefix=/usr --prefix=/ --enable-post-processing --enable-all-js-modules --disable-rabbitmq --disable-mqtt
 
 	echo -e "\n[*] Building janus-gateway executeable and plugins..."
 	make -j$(nproc)
@@ -53,7 +78,7 @@ install_janus_service() {
 generate_ssl_certificate() {
   local CERT_PATH=/vagrant/cache/ssl/certificate.pem
   local KEY_PATH=/vagrant/cache/ssl/privatekey.pem
-   
+
   if [ ! -d "/vagrant/cache/ssl" ]; then
     echo -e "\n[*] Running first time generation of X509 certificate for localhost"
     mkdir -p /vagrant/cache/ssl
@@ -81,6 +106,7 @@ echo -e " janus-server autocompiler                                             
 echo -e "=============================================================================="
 
 compile_websockets_lib
+compile_usrsctp_lib
 compile_janus_server
 generate_ssl_certificate
 install_janus_service
