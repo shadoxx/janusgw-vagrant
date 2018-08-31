@@ -48,7 +48,8 @@ compile_janus_server() {
     git clone -q https://github.com/meetecho/janus-gateway.git /vagrant/cache/janus-gateway
   fi
 
-  cd /vagrant/cache/janus-gateway
+  git clone /vagrant/cache/janus-gateway/ /home/vagrant/janus-gateway
+  cd /home/vagrant/janus-gateway
 
   sh autogen.sh
   ./configure --datarootdir=/usr --exec-prefix=/usr --prefix=/ --enable-post-processing --enable-all-js-modules --disable-rabbitmq --disable-mqtt
@@ -97,7 +98,7 @@ apply_patch_a() {
 
 apply_patch_b() {
   echo -e "\n[*] PATCH B: copying the contents of /share/janus/demos to Nginx webroot"
-  cp -vr /share/janus/demos/* /var/www/html
+  cp -vr /vagrant/cache/janus-gateway/html/* /var/www/html
 }
 
 echo -e "\n"
