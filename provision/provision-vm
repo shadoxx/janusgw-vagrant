@@ -26,7 +26,7 @@ compile_janus_server() {
 	cd /vagrant/cache/janus-gateway
 
 	sh autogen.sh
-	./configure --exec-prefix=/usr --prefix=/ --disable-data-channels --disable-rabbitmq --disable-mqtt
+	./configure --exec-prefix=/usr --prefix=/ --enable-docs --disable-data-channels --disable-rabbitmq --disable-mqtt
 
 	echo -e "\n[*] Building janus-gateway executeable and plugins..."
 	make -j$(nproc)
