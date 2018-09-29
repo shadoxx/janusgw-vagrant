@@ -44,6 +44,7 @@ This VM has the following Guest->Host port mappings enabled in the Vagrantfile:
 
 | Guest Port | Host Port | Service |
 | ----------:| ---------:|:-------:|
+| 3478       | 3478      | coturn    |
 | 7088       | 7088      | admin api |
 | 8088       | 8088      | janus api |
 |   80       | 8080      | nginx     |

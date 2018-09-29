@@ -8,6 +8,10 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 80,   host: 8080 #, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 8088, host: 8088 #, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 7088, host: 7088 #, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 3478, host: 3478 #, host_ip: "10.0.0.10"
+
+  config.vm.network "forwarded_port", guest: 10000, host: 10000, protocol: "udp"
+  config.vm.network "forwarded_port", guest: 10001, host: 10001, protocol: "udp"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -29,9 +33,7 @@ Vagrant.configure("2") do |config|
     echo 'Acquire::http::Proxy "http://192.168.42.221:3142";' > /etc/apt/apt.conf.d/proxy
 
     apt update; apt dist-upgrade -y
-
-    PKGLIST=$(</vagrant/provision/pkglist)
-    apt install -y ${PKGLIST[@]}
+    apt install -y $(</vagrant/provision/pkglist)
   SHELL
 
   config.vm.provision "shell", path: "provision/provision-vm"

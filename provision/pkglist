@@ -17,11 +17,10 @@ gengetopt
 libtool
 automake
 cmake
-nodejs
-npm
 libavutil-dev
 libavcodec-dev
 libavformat-dev
 libogg-dev
 libjansson-dev
 libglib2.0-dev
+coturn

@@ -51,6 +51,8 @@ compile_janus_server() {
   git clone /vagrant/cache/janus-gateway/ /home/vagrant/janus-gateway
   cd /home/vagrant/janus-gateway
 
+  chown -R vagrant:vagrant /home/vagrant
+
   sh autogen.sh
   ./configure --datarootdir=/usr --exec-prefix=/usr --prefix=/ --enable-post-processing --enable-all-js-modules --disable-rabbitmq --disable-mqtt
 
@@ -67,13 +69,25 @@ compile_janus_server() {
   for file in $(ls -1 "/vagrant/provision/conf/janus"); do
     install -v -m 640 /vagrant/provision/conf/janus/$file /etc/janus
   done
+
 }
 
 install_janus_service() {
   echo -e "\n[*] Installing, enabling, and starting the janus service via systemd"
-  install -m 644 /vagrant/provision/conf/systemd/janus.service /lib/systemd/system
+  install -v -m 644 /vagrant/provision/conf/systemd/janus.service /lib/systemd/system
   systemctl daemon-reload
   systemctl enable janus
+}
+
+install_coturn_service() {
+  echo -e "\n[*] Installing configuration files for coturn and enabling"
+  install -v -m 640 -o turnserver -g turnserver \
+    /vagrant/provision/conf/coturn/turnserver.conf /etc/turnserver.conf
+
+  # Enable autostart of coturn service
+  echo "TURNSERVER_ENABLED=1" > /etc/default/coturn
+
+  systemctl enable coturn
 }
 
 generate_ssl_certificate() {
@@ -99,6 +113,12 @@ apply_patch_a() {
 apply_patch_b() {
   echo -e "\n[*] PATCH B: copying the contents of /share/janus/demos to Nginx webroot"
   cp -vr /vagrant/cache/janus-gateway/html/* /var/www/html
+  cp -vr /vagrant/provision/html/* /var/www/html
+}
+
+install_nodejs() {
+  echo -e "\n[*] PATCH C: installing nodejs and npm"
+  snap install node --classic --channel 8/stable
 }
 
 echo -e "\n"
@@ -106,11 +126,15 @@ echo -e "=======================================================================
 echo -e " janus-server autocompiler                                                    "
 echo -e "=============================================================================="
 
+install_nodejs
 compile_websockets_lib
 compile_usrsctp_lib
 compile_janus_server
 generate_ssl_certificate
 install_janus_service
+install_coturn_service
 
 apply_patch_a
 apply_patch_b
+
+systemctl restart coturn
