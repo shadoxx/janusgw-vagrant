@@ -4,14 +4,17 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/bionic64"
   config.vm.hostname = "janusgw"
+                                                              #, host_ip: "0.0.0.0"
+  config.vm.network "forwarded_port", guest: 80,   host: 8080 # apache http port
+  config.vm.network "forwarded_port", guest: 8088, host: 8088 # janus http port - web
+  config.vm.network "forwarded_port", guest: 7088, host: 7088 # janus http port - admin
+  config.vm.network "forwarded_port", guest: 8188, host: 8188 # janus websocket port
 
-  config.vm.network "forwarded_port", guest: 80,   host: 8080 #, host_ip: "127.0.0.1"
-  config.vm.network "forwarded_port", guest: 8088, host: 8088 #, host_ip: "127.0.0.1"
-  config.vm.network "forwarded_port", guest: 7088, host: 7088 #, host_ip: "127.0.0.1"
-  config.vm.network "forwarded_port", guest: 3478, host: 3478 #, host_ip: "10.0.0.10"
+  config.vm.network "forwarded_port", guest: 3478, host: 3478 # coturn stun/turn port
 
-  config.vm.network "forwarded_port", guest: 10000, host: 10000, protocol: "udp"
-  config.vm.network "forwarded_port", guest: 10001, host: 10001, protocol: "udp"
+  for i in 10000..10050
+    config.vm.network :forwarded_port, guest: i, host: i, protocol: "udp"
+  end
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
