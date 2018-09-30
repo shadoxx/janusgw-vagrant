@@ -14,7 +14,7 @@ compile_websockets_lib() {
   cd /home/vagrant/libwebsockets/build
 
   echo -e "\n[*] Building libwebsockets..."
-  cmake -DLWS_WITH_HTTP2=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic" ..
+  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic" ..
   make
 
   echo -e "\n[*] Installing libwebsockets shared lib to /usr"
