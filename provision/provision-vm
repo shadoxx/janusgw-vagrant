@@ -3,7 +3,7 @@
 compile_websockets_lib() {
   if [ ! -d "/vagrant/cache/libwebsockets" ]; then
     echo -e "\n[*] Cloning the libwebsockets repository"
-    git clone -q --depth 1 -b v3.0.0 https://github.com/warmcat/libwebsockets.git /vagrant/cache/libwebsockets
+    git clone -q --depth 1 -b v2.4.2 https://github.com/warmcat/libwebsockets.git /vagrant/cache/libwebsockets
   fi
 
   # Clone from cache filesystem to vm filesystem to workaround problems with
