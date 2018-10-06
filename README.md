@@ -40,7 +40,7 @@ repository and run `vagrant up` in the cloned directory.
 
 ## Appendix
 ### A. Ports
-This VM has the following Guest->Host port mappings enabled in the Vagrantfile:
+This VM has the following services listening on the corresponding ports:
 
 | Guest Port | Host Port | Service |
 | ----------:| ---------:|:-------:|
@@ -70,3 +70,12 @@ To save on bandwidth, all cloned repos and most generated files are downloaded t
 subsequent run. This directory is explicitly ignored in the Git repo, so it's
 safe to put things there that you don't want to be deleted between `vagrant destroy`
 and `vagrant up`.
+
+### E. Networking
+Earlier revisions of this VM used host->port mapping on the host for networking
+services. This complicated things in ways that don't make sense, especially in the
+context of STUN/TURN. This VM is now configured to pull an IP via DHCP from the host
+'public network' as configured in the Vagrantfile. More advanced network
+configurations are possible, but they will not be covered in this project outside
+of the preconfigured simple scenario. Refer to Appendix A for a list of open/listening
+ports in this VM and work your development security strategy accordingly.
