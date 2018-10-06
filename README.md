@@ -63,10 +63,8 @@ The first time you run `vagrant up`, a unique SSL certificate generated for
 localhost can be found in `/vagrant/cache/ssl`. This is meant to be used only
 for development and is explicitly ignored in .gitignore.
 
-By default, it is not used. SSL support via automated configuration is planned
-in a later revision of this VM. For now, please find instructions for enabling
-SSL support in the official `janus-gateway` docs. Configuration files are also
-heavily commented.
+SSL is currently partially implemented on the main janusgw client ports, but not on
+the admin http or websocket APIs yet. Nginx is also not configured with SSL yet.
 
 ### D. Build Caching
 To save on bandwidth, all cloned repos and most generated files are downloaded to `/vagrant/cache` on first run, and then pulled from that location on each
