@@ -90,6 +90,14 @@ install_coturn_service() {
   systemctl enable coturn
 }
 
+configure_nginx() {
+  echo -e "\n[*] Applying nginx configuration and restarting webserver..."
+  install -v -m 644 /vagrant/provision/conf/nginx/nginx.conf /etc/nginx/nginx.conf
+  install -v -m 644 /vagrant/provision/conf/nginx/default /etc/nginx/sites-enabled/default
+  systemctl enable nginx
+  systemctl restart nginx
+}
+
 generate_ssl_certificate() {
   local CERT_PATH=/vagrant/cache/ssl/certificate.pem
   local KEY_PATH=/vagrant/cache/ssl/privatekey.pem
@@ -133,6 +141,7 @@ compile_janus_server
 generate_ssl_certificate
 install_janus_service
 install_coturn_service
+configure_nginx
 
 apply_patch_a
 apply_patch_b
