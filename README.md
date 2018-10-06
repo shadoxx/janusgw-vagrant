@@ -31,7 +31,9 @@ repository and run `vagrant up` in the cloned directory.
    you been sitting at your computer?
 
 6. Once completed, a basic web management interface with API demos will be available
-   at http://localhost:8080/index.html. The password for the Admin API is: `janusoverlord`
+   at http://janusgw:8080/index.html. The password for the Admin API is: `janusoverlord`
+   NOTE: You may need to use the IP address of the running VM to access the web interface
+   if DNS Hostname mapping is not configuration on your network.
 
 7. To SSH into the newly created VM, just type `vagrant ssh`.
 
@@ -42,12 +44,13 @@ repository and run `vagrant up` in the cloned directory.
 ### A. Ports
 This VM has the following services listening on the corresponding ports:
 
-| Guest Port | Host Port | Service |
-| ----------:| ---------:|:-------:|
-| 3478       | 3478      | coturn    |
-| 7088       | 7088      | admin api |
-| 8088       | 8088      | janus api |
-|   80       | 8080      | nginx     |
+| Port       | Service   |
+| ----------:| ---------:|
+| 3478       | coturn    |
+| 49152-65535| coturn udp|
+| 7088       | admin api |
+| 8088       | janus api |
+|   80       | nginx     |
 
 ### B. Customized Configurations
 All files located in the `provision/conf/janus` directory in this repository
